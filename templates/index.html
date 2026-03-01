@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Početna - Task Manager{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1><i class="fas fa-home me-2"></i>Dobrodošli, {{ user.username }}!</h1>
+        <p class="lead">Upravljajte taskovima i radite sa timom</p>
+    </div>
+</div>
+
+<!-- Room Management -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-door-open me-2"></i>Sobe / Workspace</h4>
+            </div>
+            <div class="card-body">
+                <!-- Create Room Form -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h5>Kreiraj novu sobu:</h5>
+                        <form method="POST" action="{{ url_for('create_room') }}" class="d-flex">
+                            <input type="text" name="room_name" class="form-control me-2" placeholder="Naziv sobe" required>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Kreiraj
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Pridruži se sobi:</h5>
+                        <form method="POST" action="{{ url_for('join_room') }}" class="d-flex">
+                            <input type="text" name="room_code" class="form-control me-2" placeholder="Unesi kod sobe" maxlength="6" style="text-transform: uppercase;">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-sign-in-alt me-1"></i>Pridruži se
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- User Rooms -->
+                <div class="row">
+                    <div class="col-12">
+                        <h5>Vaše sobe:</h5>
+                        {% if user_rooms or owned_rooms %}
+                            <div class="row">
+                                {% for room in owned_rooms %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card room-card border-primary">
+                                            <div class="card-body">
+                                                <h6 class="card-title">
+                                                    <i class="fas fa-crown text-warning me-2"></i>{{ room.name }}
+                                                </h6>
+                                                <p class="card-text">
+                                                    <small class="text-muted">Kod: <span class="unique-code">{{ room.unique_code }}</span></small><br>
+                                                    <small class="text-muted">Članovi: {{ room.members|length }}</small>
+                                                </p>
+                                                <a href="{{ url_for('room', room_id=room.id) }}" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-arrow-right me-1"></i>Otvori
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                {% for room in user_rooms %}
+                                    {% if room not in owned_rooms %}
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card room-card">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">{{ room.name }}</h6>
+                                                    <p class="card-text">
+                                                        <small class="text-muted">Vlasnik: {{ room.owner.username }}</small><br>
+                                                        <small class="text-muted">Članovi: {{ room.members|length }}</small>
+                                                    </p>
+                                                    <a href="{{ url_for('room', room_id=room.id) }}" class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-arrow-right me-1"></i>Otvori
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>Nemate nijednu sobu. Kreirajte novu sobu ili pridružite se postojećoj.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
