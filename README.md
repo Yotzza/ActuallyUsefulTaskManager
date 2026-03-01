@@ -79,6 +79,6 @@ Aplikacija je spremna za deployment na:
 ## Autori
 
 Svaki task prikazuje kompletnu istoriju:
-- 🧑‍💼 **Kreirao**: Korisnik koji je napravio task
-- ✋ **Claimovao**: Korisnik koji preuzeo task za rad
-- ✅ **Završio**: Korisnik koji je markirao task kao završen
+- **Kreirao**: Korisnik koji je napravio task
+- **Claimovao**: Korisnik koji preuzeo task za rad
+- **Završio**: Korisnik koji je markirao task kao završen
