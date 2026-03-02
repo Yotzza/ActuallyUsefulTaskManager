@@ -8,21 +8,21 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h1><i class="fas fa-door-open me-2"></i>{{ room.name }}</h1>
-                <p class="text-muted">Kod sobe: <span class="unique-code clickable-code" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Klikni da kopiraš">{{ room.unique_code }}</span></p>
+                <p class="text-muted">Room code: <span class="unique-code clickable-code" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Klikni da kopiraš">{{ room.unique_code }}</span></p>
             </div>
             <div>
                 {% if is_owner %}
                 <button class="btn btn-danger me-2 delete-room-from-workspace-btn" 
                         data-room-id="{{ room.id }}" 
                         data-room-name="{{ room.name }}">
-                    <i class="fas fa-trash me-2"></i>Obriši sobu
+                    <i class="fas fa-trash me-2"></i>Delete room
                 </button>
                 {% endif %}
                 <button class="btn btn-info me-2" data-bs-toggle="modal" data-bs-target="#membersModal">
-                    <i class="fas fa-users me-2"></i>Članovi ({{ room.members|length }})
+                    <i class="fas fa-users me-2"></i>Members ({{ room.members|length }})
                 </button>
                 <a href="{{ url_for('index') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Nazad
+                    <i class="fas fa-arrow-left me-2"></i>Back
                 </a>
             </div>
         </div>
@@ -33,7 +33,7 @@
 <div class="row mb-4">
     <div class="col-12">
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTaskModal">
-            <i class="fas fa-plus me-2"></i>Dodaj Task
+            <i class="fas fa-plus me-2"></i>Add task
         </button>
     </div>
 </div>
@@ -98,10 +98,10 @@
                                 <div>
                                     <small class="text-muted">
                                         <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ task.created_at.strftime('%d.%m.%Y %H:%M') }}">
-                                            <i class="fas fa-user me-1"></i>Kreirao: {{ task.creator.username }}
+                                            <i class="fas fa-user me-1"></i>Created: {{ task.creator.username }}
                                         </span><br>
                                         <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ task.claimed_at.strftime('%d.%m.%Y %H:%M') }}">
-                                            <i class="fas fa-hand-paper me-1"></i>Claimovao: {{ task.claimer.username }}
+                                            <i class="fas fa-hand-paper me-1"></i>Claimed: {{ task.claimer.username }}
                                         </span>
                                     </small>
                                 </div>
@@ -112,10 +112,10 @@
                                     </button>
                                     {% endif %}
                                     <button class="btn btn-sm btn-warning cancel-task-btn me-2">
-                                        <i class="fas fa-times me-1"></i>Otkaži
+                                        <i class="fas fa-times me-1"></i>Cancel
                                     </button>
                                     <button class="btn btn-sm btn-success complete-task-btn">
-                                        <i class="fas fa-check me-1"></i>Završi
+                                        <i class="fas fa-check me-1"></i>Finish
                                     </button>
                                 </div>
                             </div>
@@ -142,19 +142,19 @@
                             {% endif %}
                             <div class="small text-muted">
                                 <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ task.created_at.strftime('%d.%m.%Y %H:%M') }}">
-                                    <i class="fas fa-user me-1"></i>Kreirao: {{ task.creator.username }}
+                                    <i class="fas fa-user me-1"></i>Created: {{ task.creator.username }}
                                 </span><br>
                                 <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ task.claimed_at.strftime('%d.%m.%Y %H:%M') }}">
-                                    <i class="fas fa-hand-paper me-1"></i>Claimovao: {{ task.claimer.username }}
+                                    <i class="fas fa-hand-paper me-1"></i>Claimed: {{ task.claimer.username }}
                                 </span><br>
                                 <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ task.completed_at.strftime('%d.%m.%Y %H:%M') }}">
-                                    <i class="fas fa-check me-1"></i>Završio: {{ task.claimer.username }}
+                                    <i class="fas fa-check me-1"></i>Finished: {{ task.claimer.username }}
                                 </span>
                             </div>
                             {% if is_owner %}
                             <div class="mt-2">
                                 <button class="btn btn-sm btn-danger delete-task-btn">
-                                    <i class="fas fa-times me-1"></i>Obriši task
+                                    <i class="fas fa-times me-1"></i>Delete
                                 </button>
                             </div>
                             {% endif %}
@@ -171,25 +171,25 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Dodaj novi task</h5>
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Add new task</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="addTaskForm">
                     <input type="hidden" name="room_id" value="{{ room.id }}">
                     <div class="mb-3">
-                        <label for="taskTitle" class="form-label">Naslov taska</label>
+                        <label for="taskTitle" class="form-label">Task name</label>
                         <input type="text" class="form-control" id="taskTitle" name="title" required>
                     </div>
                     <div class="mb-3">
-                        <label for="taskDescription" class="form-label">Opis (opciono)</label>
+                        <label for="taskDescription" class="form-label">Description (optional)</label>
                         <textarea class="form-control" id="taskDescription" name="description" rows="3"></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Otkaži</button>
-                <button type="button" class="btn btn-primary" id="saveTaskBtn">Sačuvaj</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveTaskBtn">Save</button>
             </div>
         </div>
     </div>
@@ -200,7 +200,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-users me-2"></i>Članovi sobe "{{ room.name }}"</h5>
+                <h5 class="modal-title"><i class="fas fa-users me-2"></i>Members "{{ room.name }}"</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -211,7 +211,7 @@
                                 <i class="fas fa-user me-2"></i>{{ member.user.username }}
                                 {% if room.owner_id == member.user.id %}
                                     <span class="badge bg-warning text-dark ms-2">
-                                        <i class="fas fa-crown me-1"></i>Vlasnik
+                                        <i class="fas fa-crown me-1"></i>Owner
                                     </span>
                                 {% endif %}
                             </div>
@@ -223,7 +223,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -245,7 +245,7 @@ $(document).ready(function() {
         navigator.clipboard.writeText(code).then(function() {
             // Show success feedback
             var originalText = $('.clickable-code').attr('title');
-            $('.clickable-code').attr('title', 'Kopirano!').tooltip('show');
+            $('.clickable-code').attr('title', 'Copied!').tooltip('show');
             setTimeout(function() {
                 $('.clickable-code').attr('title', originalText).tooltip('dispose');
                 tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -271,7 +271,7 @@ $(document).ready(function() {
             if (response.success) {
                 location.reload();
             } else {
-                alert('Greška: ' + response.error);
+                alert('Error: ' + response.error);
             }
         });
     });
@@ -285,7 +285,7 @@ $(document).ready(function() {
             if (response.success) {
                 location.reload();
             } else {
-                alert('Greška: ' + response.error);
+                alert('Error: ' + response.error);
             }
         });
     });
@@ -295,12 +295,12 @@ $(document).ready(function() {
         var taskCard = $(this).closest('.task-card');
         var taskId = taskCard.data('task-id');
         
-        if (confirm('Da li si siguran da želiš da otkažeš ovaj task?')) {
+        if (confirm('Are you sure you want to cancel this task?')) {
             $.post('/cancel_task', {task_id: taskId}, function(response) {
                 if (response.success) {
                     location.reload();
                 } else {
-                    alert('Greška: ' + response.error);
+                    alert('Error: ' + response.error);
                 }
             });
         }
@@ -315,7 +315,7 @@ $(document).ready(function() {
             if (response.success) {
                 location.reload();
             } else {
-                alert('Greška: ' + response.error);
+                alert('Error: ' + response.error);
             }
         });
     });
@@ -327,13 +327,13 @@ $(document).ready(function() {
         var taskTitle = taskCard.find('.card-title').text().trim();
         
         // Set modal content
-        $('#deleteMessage').text('Da li ste sigurni da želite da obrišete task "' + taskTitle + '"?');
+        $('#deleteMessage').text('Are you sure you sure you want to delete task "' + taskTitle + '"?');
         $('#deleteDetails').html(`
             <div class="text-danger">
-                <strong>Ova akcija će trajno obrisati task i sve povezane podatke.</strong>
+                <strong>This action will permanently delete all data</strong>
                 <div class="mt-2">
                     <i class="fas fa-info-circle me-1"></i>
-                    Ovo se ne može poništiti!
+                    This cannot be undone!
                 </div>
             </div>
         `);
@@ -345,7 +345,7 @@ $(document).ready(function() {
                     $('#deleteConfirmModal').modal('hide');
                     location.reload();
                 } else {
-                    alert('Greška: ' + response.error);
+                    alert('Error: ' + response.error);
                 }
             });
         });
@@ -360,14 +360,14 @@ $(document).ready(function() {
         var roomName = $(this).data('room-name');
         
         // Set modal content
-        $('#deleteMessage').text('Da li ste sigurni da želite da obrišete sobu "' + roomName + '"?');
+        $('#deleteMessage').text('Are you sure you want to delete room "' + roomName + '"?');
         $('#deleteDetails').html(`
             <div class="text-danger">
-                <strong>Ova akcija će trajno obrisati:</strong>
+                <strong>This action will permanently delete:</strong>
                 <ul class="mb-0 mt-2">
-                    <li>• Sve taskove u sobi</li>
-                    <li>• Sve članove sobe</li>
-                    <li>• Istoriju svih aktivnosti</li>
+                    <li>• All tasks</li>
+                    <li>• All members</li>
+                    <li>• All history</li>
                 </ul>
             </div>
         `);
@@ -379,7 +379,7 @@ $(document).ready(function() {
                     $('#deleteConfirmModal').modal('hide');
                     window.location.href = '{{ url_for("index") }}';
                 } else {
-                    alert('Greška: ' + response.error);
+                    alert('Error: ' + response.error);
                 }
             });
         });

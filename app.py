@@ -77,10 +77,10 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password_hash, password):
             session['user_id'] = user.id
-            flash('Uspešno ste prijavljeni!', 'success')
+            flash('Login sucessful! Welcome!', 'success')
             return redirect(url_for('index'))
         else:
-            flash('Pogrešno korisničko ime ili lozinka', 'error')
+            flash('Invalid username or password', 'error')
     
     return render_template('login.html')
 
@@ -93,22 +93,22 @@ def register():
         
         # Validacija username-a
         if not validate_username(username):
-            flash('Korisničko ime mora imati najmanje 3 karaktera i može sadržati samo slova i brojeve', 'error')
+            flash('Username must be at least 3 characters and can contain numbers and characters', 'error')
             return render_template('register.html')
         
         # Validacija email-a
         if not validate_email(email):
-            flash('Unesite validnu email adresu', 'error')
+            flash('Enter valid email', 'error')
             return render_template('register.html')
         
         # Provera da li username već postoji
         if User.query.filter_by(username=username).first():
-            flash('Korisničko ime već postoji', 'error')
+            flash('Username already exists', 'error')
             return render_template('register.html')
         
         # Provera da li email već postoji
         if User.query.filter_by(email=email).first():
-            flash('Email već postoji', 'error')
+            flash('Email already exists', 'error')
             return render_template('register.html')
         
         user = User(
@@ -119,7 +119,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        flash('Uspešno ste registrovani! Možete se prijaviti.', 'success')
+        flash('Successfully registered! You can now login.', 'success')
         return redirect(url_for('login'))
     
     return render_template('register.html')
@@ -127,7 +127,7 @@ def register():
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
-    flash('Uspešno ste odjavljeni', 'success')
+    flash('Successfully logged out', 'success')
     return redirect(url_for('login'))
 
 @app.route('/create_room', methods=['POST'])
@@ -151,7 +151,7 @@ def create_room():
     db.session.add(member)
     db.session.commit()
     
-    flash(f'Soba "{room_name}" je kreirana! Kod: {unique_code}', 'success')
+    flash(f'Room "{room_name}" is created! Code: {unique_code}', 'success')
     return redirect(url_for('index'))
 
 @app.route('/join_room', methods=['POST'])
@@ -163,13 +163,13 @@ def join_room():
     room = Room.query.filter_by(unique_code=room_code).first()
     
     if not room:
-        flash('Soba sa tim kodom ne postoji', 'error')
+        flash('Room with this code does not exist', 'error')
         return redirect(url_for('index'))
     
     # Check if already member
     existing_member = RoomMember.query.filter_by(room_id=room.id, user_id=session['user_id']).first()
     if existing_member:
-        flash('Već ste član ove sobe', 'error')
+        flash('You are already a member of this room', 'error')
         return redirect(url_for('index'))
     
     # Add as member
@@ -177,7 +177,7 @@ def join_room():
     db.session.add(member)
     db.session.commit()
     
-    flash(f'Uspešno ste se pridružili sobi "{room.name}"!', 'success')
+    flash(f'Successfully joined room "{room.name}"!', 'success')
     return redirect(url_for('room', room_id=room.id))
 
 @app.route('/room/<int:room_id>')
@@ -207,14 +207,14 @@ def room(room_id):
 @app.route('/delete_room', methods=['POST'])
 def delete_room():
     if 'user_id' not in session:
-        return jsonify({'error': 'Niste prijavljeni'}), 401
+        return jsonify({'error': 'You are not logged in'}), 401
     
     room_id = request.form['room_id']
     room = Room.query.get_or_404(room_id)
     
     # Check if user is owner
     if room.owner_id != session['user_id']:
-        return jsonify({'error': 'Samo vlasnik može obrisati sobu'}), 403
+        return jsonify({'error': 'Only owner can delete room'}), 403
     
     # Delete room (cascade will delete tasks and members)
     db.session.delete(room)
@@ -225,7 +225,7 @@ def delete_room():
 @app.route('/add_task', methods=['POST'])
 def add_task():
     if 'user_id' not in session:
-        return jsonify({'error': 'Niste prijavljeni'}), 401
+        return jsonify({'error': 'You are not logged in'}), 401
     
     room_id = request.form['room_id']
     title = request.form['title']
@@ -234,7 +234,7 @@ def add_task():
     # Check if user is member
     is_member = RoomMember.query.filter_by(room_id=room_id, user_id=session['user_id']).first()
     if not is_member:
-        return jsonify({'error': 'Nemate pristup ovoj sobi'}), 403
+        return jsonify({'error': 'You dont have access to this room'}), 403
     
     task = Task(
         title=title,
@@ -250,7 +250,7 @@ def add_task():
 @app.route('/claim_task', methods=['POST'])
 def claim_task():
     if 'user_id' not in session:
-        return jsonify({'error': 'Niste prijavljeni'}), 401
+        return jsonify({'error': 'You are not logged in'}), 401
     
     task_id = request.form['task_id']
     task = Task.query.get_or_404(task_id)
@@ -258,10 +258,10 @@ def claim_task():
     # Check if user is member of the room
     is_member = RoomMember.query.filter_by(room_id=task.room_id, user_id=session['user_id']).first()
     if not is_member:
-        return jsonify({'error': 'Nemate pristup ovoj sobi'}), 403
+        return jsonify({'error': 'You dont have access to this room'}), 403
     
     if task.status != 'Tasks':
-        return jsonify({'error': 'Task se ne može claimovati'}), 400
+        return jsonify({'error': 'Task cannot be claimed'}), 400
     
     task.status = 'In Progress'
     task.claimed_by = session['user_id']
@@ -273,7 +273,7 @@ def claim_task():
 @app.route('/cancel_task', methods=['POST'])
 def cancel_task():
     if 'user_id' not in session:
-        return jsonify({'error': 'Niste prijavljeni'}), 401
+        return jsonify({'error': 'You are not logged in'}), 401
     
     task_id = request.form['task_id']
     task = Task.query.get_or_404(task_id)
@@ -281,11 +281,11 @@ def cancel_task():
     # Check if user is member of the room
     is_member = RoomMember.query.filter_by(room_id=task.room_id, user_id=session['user_id']).first()
     if not is_member:
-        return jsonify({'error': 'Nemate pristup ovoj sobi'}), 403
+        return jsonify({'error': 'You dont have access to this room'}), 403
     
     # Check if user is the one who claimed the task
     if task.claimed_by != session['user_id']:
-        return jsonify({'error': 'Samo korisnik koji je claimovao task može otkazati'}), 403
+        return jsonify({'error': 'Only user who claimed the task can cancel it'}), 403
     
     # Reset task to Tasks status
     task.status = 'Tasks'
@@ -298,7 +298,7 @@ def cancel_task():
 @app.route('/complete_task', methods=['POST'])
 def complete_task():
     if 'user_id' not in session:
-        return jsonify({'error': 'Niste prijavljeni'}), 401
+        return jsonify({'error': 'You are not logged in'}), 401
     
     task_id = request.form['task_id']
     task = Task.query.get_or_404(task_id)
@@ -306,10 +306,10 @@ def complete_task():
     # Check if user is member of the room
     is_member = RoomMember.query.filter_by(room_id=task.room_id, user_id=session['user_id']).first()
     if not is_member:
-        return jsonify({'error': 'Nemate pristup ovoj sobi'}), 403
+        return jsonify({'error': 'You dont have access to this room'}), 403
     
     if task.status != 'In Progress':
-        return jsonify({'error': 'Task se ne može završiti'}), 400
+        return jsonify({'error': 'Task cannot be finished'}), 400
     
     task.status = 'Finished'
     task.completed_at = datetime.utcnow()
@@ -320,7 +320,7 @@ def complete_task():
 @app.route('/delete_task', methods=['POST'])
 def delete_task():
     if 'user_id' not in session:
-        return jsonify({'error': 'Niste prijavljeni'}), 401
+        return jsonify({'error': 'You are not logged in'}), 401
     
     task_id = request.form['task_id']
     task = Task.query.get_or_404(task_id)
@@ -328,7 +328,7 @@ def delete_task():
     # Check if user is owner of the room
     room = Room.query.get(task.room_id)
     if room.owner_id != session['user_id']:
-        return jsonify({'error': 'Samo vlasnik sobe može brisati taskove'}), 403
+        return jsonify({'error': 'Only owner of the room can delete tasks'}), 403
     
     db.session.delete(task)
     db.session.commit()

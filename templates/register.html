@@ -8,35 +8,35 @@
         <div class="card shadow">
             <div class="card-body">
                 <h2 class="card-title text-center mb-4">
-                    <i class="fas fa-user-plus me-2"></i>Registracija
+                    <i class="fas fa-user-plus me-2"></i>Register
                 </h2>
                 <form method="POST" novalidate>
                     <div class="mb-3">
-                        <label for="username" class="form-label">Korisničko ime</label>
+                        <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" name="username" 
                                pattern="[a-zA-Z0-9]+" 
                                title="Korisničko ime može sadržati samo slova i brojeve" 
                                minlength="3" maxlength="80" required>
-                        <small class="form-text text-muted">Najmanje 3 karaktera. Dozvoljeno: samo slova i brojevi</small>
+                        <small class="form-text text-muted">(min 3 characters, only letters and numbers)</small>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email" 
                                maxlength="120" required>
-                        <small class="form-text text-muted">Unesite validnu email adresu</small>
+                        <small class="form-text text-muted">(enter valid email)</small>
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label">Lozinka</label>
+                        <label for="password" class="form-label">Password</label>
                         <input type="password" class="form-control" id="password" name="password" 
                                minlength="5" required>
-                        <small class="form-text text-muted">Najmanje 5 karaktera</small>
+                        <small class="form-text text-muted">(min 5 characters)</small>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-user-plus me-2"></i>Registruj se
+                        <i class="fas fa-user-plus me-2"></i>Register
                     </button>
                 </form>
                 <div class="text-center mt-3">
-                    <p>Već imate nalog? <a href="{{ url_for('login') }}">Prijavite se</a></p>
+                    <p>Have an account? <a href="{{ url_for('login') }}">Login</a></p>
                 </div>
             </div>
         </div>
