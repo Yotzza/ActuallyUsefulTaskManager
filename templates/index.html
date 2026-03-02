@@ -24,7 +24,7 @@
                         <h5>Create room:</h5>
                         <form method="POST" action="{{ url_for('create_room') }}" class="d-flex">
                             <input type="text" name="room_name" class="form-control me-2" placeholder="Name" required>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" style="min-width: 100px;">
                                 <i class="fas fa-plus me-1"></i>Create
                             </button>
                         </form>
@@ -33,7 +33,7 @@
                         <h5>Join room:</h5>
                         <form method="POST" action="{{ url_for('join_room') }}" class="d-flex">
                             <input type="text" name="room_code" class="form-control me-2" placeholder="Enter code" maxlength="6" style="text-transform: uppercase;">
-                            <button type="submit" class="btn btn-success">
+                            <button type="submit" class="btn btn-success" style="min-width: 100px;">
                                 <i class="fas fa-sign-in-alt me-1"></i>Join
                             </button>
                         </form>
