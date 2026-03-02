@@ -204,6 +204,24 @@ def room(room_id):
     
     return render_template('room.html', room=room, tasks_dict=tasks_dict, user=user, is_owner=room.owner_id == session['user_id'])
 
+@app.route('/delete_room', methods=['POST'])
+def delete_room():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Niste prijavljeni'}), 401
+    
+    room_id = request.form['room_id']
+    room = Room.query.get_or_404(room_id)
+    
+    # Check if user is owner
+    if room.owner_id != session['user_id']:
+        return jsonify({'error': 'Samo vlasnik može obrisati sobu'}), 403
+    
+    # Delete room (cascade will delete tasks and members)
+    db.session.delete(room)
+    db.session.commit()
+    
+    return jsonify({'success': True})
+
 @app.route('/add_task', methods=['POST'])
 def add_task():
     if 'user_id' not in session:
@@ -248,6 +266,31 @@ def claim_task():
     task.status = 'In Progress'
     task.claimed_by = session['user_id']
     task.claimed_at = datetime.utcnow()
+    db.session.commit()
+    
+    return jsonify({'success': True})
+
+@app.route('/cancel_task', methods=['POST'])
+def cancel_task():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Niste prijavljeni'}), 401
+    
+    task_id = request.form['task_id']
+    task = Task.query.get_or_404(task_id)
+    
+    # Check if user is member of the room
+    is_member = RoomMember.query.filter_by(room_id=task.room_id, user_id=session['user_id']).first()
+    if not is_member:
+        return jsonify({'error': 'Nemate pristup ovoj sobi'}), 403
+    
+    # Check if user is the one who claimed the task
+    if task.claimed_by != session['user_id']:
+        return jsonify({'error': 'Samo korisnik koji je claimovao task može otkazati'}), 403
+    
+    # Reset task to Tasks status
+    task.status = 'Tasks'
+    task.claimed_by = None
+    task.claimed_at = None
     db.session.commit()
     
     return jsonify({'success': True})

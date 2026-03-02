@@ -5,8 +5,8 @@
 {% block content %}
 <div class="row mb-4">
     <div class="col-12">
-        <h1><i class="fas fa-home me-2"></i>Dobrodošli, {{ user.username }}!</h1>
-        <p class="lead">Upravljajte taskovima i radite sa timom</p>
+        <h1><i class="fas fa-home me-2"></i>Welcome, {{ user.username }}!</h1>
+        <p class="lead">Manage your task and teams.</p>
     </div>
 </div>
 
@@ -15,26 +15,26 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h4><i class="fas fa-door-open me-2"></i>Sobe / Workspace</h4>
+                <h4><i class="fas fa-door-open me-2"></i>Rooms</h4>
             </div>
             <div class="card-body">
                 <!-- Create Room Form -->
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <h5>Kreiraj novu sobu:</h5>
+                        <h5>Create room:</h5>
                         <form method="POST" action="{{ url_for('create_room') }}" class="d-flex">
-                            <input type="text" name="room_name" class="form-control me-2" placeholder="Naziv sobe" required>
+                            <input type="text" name="room_name" class="form-control me-2" placeholder="Name" required>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-plus me-1"></i>Kreiraj
+                                <i class="fas fa-plus me-1"></i>Create
                             </button>
                         </form>
                     </div>
                     <div class="col-md-6">
-                        <h5>Pridruži se sobi:</h5>
+                        <h5>Join room:</h5>
                         <form method="POST" action="{{ url_for('join_room') }}" class="d-flex">
-                            <input type="text" name="room_code" class="form-control me-2" placeholder="Unesi kod sobe" maxlength="6" style="text-transform: uppercase;">
+                            <input type="text" name="room_code" class="form-control me-2" placeholder="Enter code" maxlength="6" style="text-transform: uppercase;">
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-sign-in-alt me-1"></i>Pridruži se
+                                <i class="fas fa-sign-in-alt me-1"></i>Join
                             </button>
                         </form>
                     </div>
@@ -43,7 +43,7 @@
                 <!-- User Rooms -->
                 <div class="row">
                     <div class="col-12">
-                        <h5>Vaše sobe:</h5>
+                        <h5>Your rooms:</h5>
                         {% if user_rooms or owned_rooms %}
                             <div class="row">
                                 {% for room in owned_rooms %}
@@ -54,12 +54,19 @@
                                                     <i class="fas fa-crown text-warning me-2"></i>{{ room.name }}
                                                 </h6>
                                                 <p class="card-text">
-                                                    <small class="text-muted">Kod: <span class="unique-code">{{ room.unique_code }}</span></small><br>
-                                                    <small class="text-muted">Članovi: {{ room.members|length }}</small>
+                                                    <small class="text-muted">Code: <span class="unique-code clickable-code" title="Kliknite za kopiranje">{{ room.unique_code }}</span></small><br>
+                                                    <small class="text-muted">Members: {{ room.members|length }}</small>
                                                 </p>
-                                                <a href="{{ url_for('room', room_id=room.id) }}" class="btn btn-primary btn-sm">
-                                                    <i class="fas fa-arrow-right me-1"></i>Otvori
-                                                </a>
+                                                <div class="d-flex justify-content-between">
+                                                    <a href="{{ url_for('room', room_id=room.id) }}" class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-arrow-right me-1"></i>Open
+                                                    </a>
+                                                    <button class="btn btn-danger btn-sm delete-room-btn" 
+                                                            data-room-id="{{ room.id }}" 
+                                                            data-room-name="{{ room.name }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -71,11 +78,11 @@
                                                 <div class="card-body">
                                                     <h6 class="card-title">{{ room.name }}</h6>
                                                     <p class="card-text">
-                                                        <small class="text-muted">Vlasnik: {{ room.owner.username }}</small><br>
-                                                        <small class="text-muted">Članovi: {{ room.members|length }}</small>
+                                                        <small class="text-muted">Owner: {{ room.owner.username }}</small><br>
+                                                        <small class="text-muted">Members: {{ room.members|length }}</small>
                                                     </p>
                                                     <a href="{{ url_for('room', room_id=room.id) }}" class="btn btn-primary btn-sm">
-                                                        <i class="fas fa-arrow-right me-1"></i>Otvori
+                                                        <i class="fas fa-arrow-right me-1"></i>Open
                                                     </a>
                                                 </div>
                                             </div>
@@ -85,7 +92,7 @@
                             </div>
                         {% else %}
                             <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>Nemate nijednu sobu. Kreirajte novu sobu ili pridružite se postojećoj.
+                                <i class="fas fa-info-circle me-2"></i>You dont have any rooms. Create new room or join existing room.
                             </div>
                         {% endif %}
                     </div>
@@ -94,4 +101,67 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // Copy room code on click
+    $('.clickable-code').click(function() {
+        var code = $(this).text();
+        navigator.clipboard.writeText(code).then(function() {
+            // Show success feedback
+            var originalText = $('.clickable-code').attr('title');
+            $('.clickable-code').attr('title', 'Kopirano!').tooltip('show');
+            setTimeout(function() {
+                $('.clickable-code').attr('title', originalText).tooltip('dispose');
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                });
+            }, 1500);
+        });
+    });
+
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+
+    // Delete Room
+    $('.delete-room-btn').click(function() {
+        var roomId = $(this).data('room-id');
+        var roomName = $(this).data('room-name');
+        
+        // Set modal content
+        $('#deleteMessage').text('Are  you sure you want to delete "' + roomName + '"?');
+        $('#deleteDetails').html(`
+            <div class="text-danger">
+                <strong>THIS ACTION IS PERMANENT:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>• ALL TASKS</li>
+                    <li>• ALL MEMEBERS</li>
+                    <li>• ALL HISTORY</li>
+                </ul>
+            </div>
+        `);
+        
+        // Set confirm button action
+        $('#confirmDeleteBtn').off('click').on('click', function() {
+            $.post('/delete_room', {room_id: roomId}, function(response) {
+                if (response.success) {
+                    $('#deleteConfirmModal').modal('hide');
+                    location.reload();
+                } else {
+                    alert('Error: ' + response.error);
+                }
+            });
+        });
+        
+        // Show modal
+        $('#deleteConfirmModal').modal('show');
+    });
+});
+</script>
 {% endblock %}
