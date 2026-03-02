@@ -1,3 +1,4 @@
+import re
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -86,14 +87,26 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
+        username = request.form['username'].strip()
+        email = request.form['email'].strip()
         password = request.form['password']
         
+        # Validacija username-a
+        if not validate_username(username):
+            flash('Korisničko ime mora imati najmanje 3 karaktera i može sadržati samo slova i brojeve', 'error')
+            return render_template('register.html')
+        
+        # Validacija email-a
+        if not validate_email(email):
+            flash('Unesite validnu email adresu', 'error')
+            return render_template('register.html')
+        
+        # Provera da li username već postoji
         if User.query.filter_by(username=username).first():
             flash('Korisničko ime već postoji', 'error')
             return render_template('register.html')
         
+        # Provera da li email već postoji
         if User.query.filter_by(email=email).first():
             flash('Email već postoji', 'error')
             return render_template('register.html')
@@ -284,6 +297,22 @@ def generate_unique_code():
         code = ''.join(secrets.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') for _ in range(6))
         if not Room.query.filter_by(unique_code=code).first():
             return code
+
+def validate_username(username):
+    """Validira username - dozvoljava samo slova i brojeve"""
+    if not username or len(username) < 3 or len(username) > 80:
+        return False
+    # Dozvoljava samo: slova (a-z, A-Z) i brojeve (0-9)
+    pattern = r'^[a-zA-Z0-9]+$'
+    return re.match(pattern, username) is not None
+
+def validate_email(email):
+    """Validira email - osnovna email validacija"""
+    if not email or len(email) > 120:
+        return False
+    # Jednostavna email validacija - dozvoljava brojeve u email
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
 
 def init_db():
     with app.app_context():

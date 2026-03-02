@@ -10,18 +10,26 @@
                 <h2 class="card-title text-center mb-4">
                     <i class="fas fa-user-plus me-2"></i>Registracija
                 </h2>
-                <form method="POST">
+                <form method="POST" novalidate>
                     <div class="mb-3">
                         <label for="username" class="form-label">Korisničko ime</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                        <input type="text" class="form-control" id="username" name="username" 
+                               pattern="[a-zA-Z0-9]+" 
+                               title="Korisničko ime može sadržati samo slova i brojeve" 
+                               minlength="3" maxlength="80" required>
+                        <small class="form-text text-muted">Najmanje 3 karaktera. Dozvoljeno: samo slova i brojevi</small>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               maxlength="120" required>
+                        <small class="form-text text-muted">Unesite validnu email adresu</small>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Lozinka</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               minlength="5" required>
+                        <small class="form-text text-muted">Najmanje 5 karaktera</small>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">
                         <i class="fas fa-user-plus me-2"></i>Registruj se
